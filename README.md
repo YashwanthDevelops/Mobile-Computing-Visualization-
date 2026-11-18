@@ -1,6 +1,6 @@
 # Mobile Computing
 
-A static, interactive course covering five units and 53 topics. Each lesson combines a diagram, a step-by-step explanation, and study notes. The Gallery provides selected credited reference diagrams.
+A static, interactive course covering five units and 53 topics. Each lesson combines a diagram, a step-by-step explanation, and study notes. Open the lesson's Gallery to review static diagrams of its steps and any credited references for that topic.
 
 [Open the course on GitHub Pages](https://yashwanthdevelops.github.io/Mobile-Computing-Visualization-/)
 

@@ -9,7 +9,6 @@ import './polish.css'
 import './study.css'
 
 const TopicPlayer = lazy(()=>import('./Player'))
-const DiagramGallery = lazy(()=>import('./Gallery'))
 const fetched = new Map<string,Promise<{default:Lesson}>>()
 const total = units.reduce((sum,u)=>sum+u.topics.length,0)
 const unitURL=(u:Unit)=>'#/unit/'+u.id
@@ -81,7 +80,7 @@ function IndexPage({unit}:{unit?:Unit}){
 }
 function App(){
   const [route,setRoute]=useState(location.hash)
-  const [search,setSearch]=useState(false),[drawer,setDrawer]=useState(false),[gallery,setGallery]=useState(false)
+  const [search,setSearch]=useState(false),[drawer,setDrawer]=useState(false)
   const [dark,setDark]=useState(()=>{try{return localStorage.getItem('mobile-theme')==='dark'}catch{return false}})
   const [base,query='']=route.replace(/^#\/?/,'').split('?'),[prefix,uid,slug,num]=base.split('/')
   const unit=prefix==='unit'?units.find(u=>u.id===uid):undefined,entry=unit?.topics.find(t=>t.slug===slug)
@@ -91,18 +90,17 @@ function App(){
     history.replaceState(history.state,'',next)
     setRoute(next)
   }
-  useEffect(()=>{const change=()=>{const next=location.hash;startTransition(()=>setRoute(next));setSearch(false);setDrawer(false);setGallery(false)};window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change)},[])
+  useEffect(()=>{const change=()=>{const next=location.hash;startTransition(()=>setRoute(next));setSearch(false);setDrawer(false)};window.addEventListener('hashchange',change);return()=>window.removeEventListener('hashchange',change)},[])
   useEffect(()=>{window.scrollTo(0,0);document.title=(entry?.short||unit?.short||'Course overview')+' · Mobile Computing'},[entry,unit])
   useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('mobile-theme',dark?'dark':'light')}catch{}},[dark])
-  useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setSearch(s=>!s);setDrawer(false);setGallery(false)}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[])
+  useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&!document.querySelector('.gallery-dialog[open]')){e.preventDefault();setSearch(s=>!s);setDrawer(false)}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[])
   return <><a className="skip" href="#main" onClick={e=>{e.preventDefault();const main=document.querySelector('main');if(main){main.tabIndex=-1;main.focus()}}}>Skip to content</a>
     <header className="topbar"><button className="flat-btn mobile-menu" aria-label="Open course menu" onClick={()=>setDrawer(true)}><Icon name="menu"/></button><a href="#/" className="brand-link" aria-label="Mobile Computing home"><Brand/></a><a href="#/" className="learn-tab"><Icon name="book"/> Learn</a>
-      <div className="top-actions"><button className="gallery-open" type="button" onClick={()=>setGallery(true)}><Icon name="grid" size={14}/> Gallery</button><button className="search-open" onClick={()=>setSearch(true)} aria-label="Search topics"><Icon name="search"/><span>Search topics…</span><kbd>Ctrl K</kbd></button><button className="theme-toggle" aria-label={dark?'Switch to light theme':'Switch to dark theme'} onClick={()=>setDark(!dark)}><Icon name={dark?'sun':'moon'}/></button></div>
+      <div className="top-actions"><button className="search-open" onClick={()=>setSearch(true)} aria-label="Search topics"><Icon name="search"/><span>Search topics…</span><kbd>Ctrl K</kbd></button><button className="theme-toggle" aria-label={dark?'Switch to light theme':'Switch to dark theme'} onClick={()=>setDark(!dark)}><Icon name={dark?'sun':'moon'}/></button></div>
     </header>
     <div className="app-body"><aside className="sidebar"><CourseTree unit={unit} entry={entry}/></aside>
       {invalid?<main id="main" className="index-page"><h1>Topic unavailable</h1><a href="#/">Return to course overview</a></main>:entry&&unit?<Suspense fallback={<main id="main" className="loading">Opening {entry.short}…</main>}><Reader entry={entry} unit={unit} step={Number(num)||1} scenario={Number(new URLSearchParams(query).get('view'))||0} onStepRoute={replaceStepRoute}/></Suspense>:<IndexPage key={unit?.id||'overview'} unit={unit}/>}
-    </div>{search&&<Search dismiss={()=>setSearch(false)}/ >}{drawer&&<Drawer unit={unit} entry={entry} dismiss={()=>setDrawer(false)}/>}
-    {gallery&&<Suspense fallback={null}><DiagramGallery topic={entry?.slug} close={()=>setGallery(false)}/></Suspense>}</>
+    </div>{search&&<Search dismiss={()=>setSearch(false)}/ >}{drawer&&<Drawer unit={unit} entry={entry} dismiss={()=>setDrawer(false)}/>}</>
 }
 function Course(){
   const [dismissed,setDismissed] = useState(false)

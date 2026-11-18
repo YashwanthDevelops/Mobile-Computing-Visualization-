@@ -5,6 +5,7 @@ import Diagram from './Diagram'
 import {Experiment} from './Experiments'
 import {useReducedMotion} from './motion'
 import StudyNotes from './StudyNotes'
+import Gallery from './Gallery'
 
 const modeNames={map:'Network map',ladder:'Message flow',layers:'Architecture',experiment:'Experiment',compare:'Comparison',timeline:'Timeline'}
 const baseNames:Record<string,string>={'mobile-generations':'Generations','mobile-security':'Secure connection','quantum-optimization':'Fast uplink','quantum-devices':'Weak field',gprs:'Upload','wap-sms':'WAP request','mobile-ip':'Mobile IPv6','bluetooth-wimax':'Radio links','softswitch-vpn':'Call control','cloud-quantum':'Available backend','client-hardware':'PDA input',h323:'Two-party call',ims:'Registration','in-ss7':'Call trace','palm-os':'Save a record',symbian:'Contacts lookup'}
@@ -18,6 +19,7 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
    visual:option?.visual??(option?.nodes?undefined:lesson.visual)}
  const reduced=useReducedMotion()
  const [chosen,setChosen]=useState<string|null>(null),[playing,setPlaying]=useState(true)
+ const [galleryOpen,setGalleryOpen]=useState(false)
  const [revision,setRevision]=useState(0),[benchVersion,setBenchVersion]=useState(0)
  const inspected=current.nodes.find(n=>n.id===chosen)
  const hasTraffic=Boolean(s.links?.length)&&current.mode!=='timeline'&&current.mode!=='layers'
@@ -35,7 +37,8 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
  const noun=current.mode==='timeline'?'generation':'component'
  const unitHref='#/unit/'+unit.id
  const name=(id:string)=>current.nodes.find(n=>n.id===id)?.label||id
- const chapter=option?.label||lesson.walkthrough||baseNames[lesson.slug]||'Walkthrough'
+ const baseLabel=lesson.walkthrough||baseNames[lesson.slug]||'Walkthrough'
+ const chapter=option?.label||baseLabel
  const stepButtons=<div className="step-buttons">
   <button className="button" disabled={index===0} onClick={()=>go(index-1)}><Icon name="back" size={14}/> Previous step</button>
   {index===steps.length-1
@@ -45,13 +48,15 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
  return <main className="lesson-page page-enter" id="main" style={{'--unit-color':unit.color} as CSSProperties}>
  <article className="workspace">
   <div className="lesson-head"><div className="crumb"><a className="page-back" href={unitHref} title={unit.title}><Icon name="back" size={14}/> Back to unit</a><span>Unit {unit.numeral} · Topic {unit.topics.findIndex(t=>t.slug===lesson.slug)+1} of {unit.topics.length}</span></div>
-   <h1>{lesson.title}</h1><p>{lesson.question}</p><div className="pills"><span className="pill tan"><Icon name="route" size={12}/>{modeNames[current.mode]}</span><span className="pill lavender"><Icon name="list" size={12}/>{steps.length} steps</span>{lesson.study&&<button className="pill study-jump" onClick={()=>document.getElementById('study-notes')?.scrollIntoView({behavior:reduced?'instant':'smooth'})}><Icon name="book" size={12}/> Study notes</button>}</div>
+   <h1>{lesson.title}</h1><p>{lesson.question}</p><div className="pills"><span className="pill tan"><Icon name="route" size={12}/>{modeNames[current.mode]}</span><span className="pill lavender"><Icon name="list" size={12}/>{steps.length} steps</span>{lesson.study&&<button className="pill study-jump" onClick={()=>document.getElementById('study-notes')?.scrollIntoView({behavior:reduced?'instant':'smooth'})}><Icon name="book" size={12}/> Study notes</button>}
+    <button className="pill gallery-open" type="button" aria-haspopup="dialog" onClick={()=>setGalleryOpen(true)}><Icon name="grid" size={12}/> Gallery</button>
+   </div>
   </div>
   <nav className="mobile-step-nav" aria-label="Lesson steps">{stepButtons}</nav>
   <section className="stage" aria-label="Interactive visualization">
    <div className="canvas-tools"><span className="stage-key"><i className={hasTraffic&&playing&&!reduced?'flowing':''}/><span key={variant+'-'+index} className="text-reveal">{s.value||s.label}</span></span><div className="playback">{hasTraffic&&!reduced&&<><button onClick={replay} title="Replay this step (R)"><Icon name="reset" size={13}/>Replay</button><button onClick={()=>setPlaying(!playing)} title="Pause or play traffic (Space)"><Icon name={playing?'pause':'play'} size={12}/>{playing?'Pause':'Play'}</button></>}<button className="reset-btn" onClick={reset} title="Reset topic and inputs" aria-label="Reset topic">Reset</button></div></div>
-   {lesson.scenarios?.length?<div className="scenarios" aria-label="Choose scenario">{[lesson.walkthrough||baseNames[lesson.slug]||'Walkthrough',...lesson.scenarios.map(v=>v.label)].map((label,i)=><button aria-pressed={i===variant} onClick={()=>go(0,i)} key={i}>{label}</button>)}</div>:null}
-   <Diagram key={variant} lesson={current} steps={steps} index={index} revision={revision} motion={!reduced} playing={playing} chosen={chosen} onNode={id=>setChosen(old=>old===id?null:id)} onStep={go}/>
+   {lesson.scenarios?.length?<div className="scenarios" aria-label="Choose scenario">{[baseLabel,...lesson.scenarios.map(v=>v.label)].map((label,i)=><button aria-pressed={i===variant} onClick={()=>go(0,i)} key={i}>{label}</button>)}</div>:null}
+   <Diagram key={variant} lesson={current} steps={steps} index={index} revision={revision} motion={!reduced} playing={playing&&!galleryOpen} chosen={chosen} onNode={id=>setChosen(old=>old===id?null:id)} onStep={go}/>
    <div className="flow-legend" aria-label="Diagram legend">
     <div key={variant+'-'+index} className="flow-items text-reveal">
       {s.links?.length?<><span><i className="legend-live"/> Active path</span><span><i className="legend-context"/> Other connections</span></>:<span><Icon name="pointer" size={12}/> Select a {noun} to inspect</span>}
@@ -78,5 +83,6 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
  </section><section className={'inspector '+(inspected?'inspector-open':'')} aria-live="polite"><div className="subhead"><b><Icon name="pointer" size={13}/> COMPONENT INSPECTOR</b>{inspected&&<button className="flat-btn" onClick={()=>setChosen(null)} aria-label="Close component details"><Icon name="close" size={14}/></button>}</div>{inspected?<><h3>{inspected.label}</h3><p>{inspected.detail}</p></>:<p>Select a {noun} in the diagram to inspect its role.</p>}</section></aside>
  {inspected&&<section className="mobile-inspection" aria-live="polite"><header><strong>{inspected.label}</strong><button className="flat-btn" aria-label="Dismiss component information" onClick={()=>setChosen(null)}><Icon name="close" size={16}/></button></header><p>{inspected.detail}</p></section>}
  {lesson.study&&<StudyNotes key={lesson.slug} notes={lesson.study}/>}
+ {galleryOpen&&<Gallery lesson={lesson} variant={variant} index={index} baseLabel={baseLabel} close={()=>setGalleryOpen(false)}/>}
  </main>
 }
