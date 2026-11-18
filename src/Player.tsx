@@ -31,11 +31,18 @@ export default function TopicPlayer({lesson,unit,step,scenario}:{lesson:Lesson;u
  };window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[variant,index,steps,unit,lesson,hasTraffic,reduced])
  const noun=current.mode==='timeline'?'generation':'component'
  const unitHref='#/unit/'+unit.id
+ const stepButtons=<div className="step-buttons">
+  <button className="button" disabled={index===0} onClick={()=>go(index-1)}><Icon name="back" size={14}/> Back</button>
+  {index===steps.length-1
+   ? <a className="button green next" href={unitHref}>Unit topics <Icon name="arrow" size={14}/></a>
+   : <button className="button green next" onClick={()=>go(index+1)}>Next: {steps[index+1].label}<Icon name="arrow" size={14}/></button>}
+ </div>
  return <main className="lesson-page page-enter" id="main" style={{'--unit-color':unit.color} as CSSProperties}>
  <article className="workspace">
   <div className="lesson-head"><div className="crumb"><a href={unitHref}>Unit {unit.numeral} · {unit.short}</a><span>/</span>Topic {unit.topics.findIndex(t=>t.slug===lesson.slug)+1} of {unit.topics.length}</div>
    <h1>{lesson.title}</h1><p>{lesson.question}</p><div className="pills"><span className="pill tan"><Icon name="route" size={12}/>{modeNames[current.mode]}</span><span className="pill lavender"><Icon name="list" size={12}/>{steps.length} steps</span></div>
   </div>
+  <nav className="mobile-step-nav" aria-label="Lesson steps">{stepButtons}</nav>
   <section className="stage" aria-label="Interactive visualization">
    <div className="canvas-tools"><span className="stage-key"><i className={hasTraffic&&playing&&!reduced?'flowing':''}/><span key={variant+'-'+index} className="text-reveal">{s.value||s.label}</span></span><div className="playback">{hasTraffic&&!reduced&&<><button onClick={replay} title="Replay this step (R)"><Icon name="reset" size={13}/>Replay</button><button onClick={()=>setPlaying(!playing)} title="Pause or play traffic (Space)"><Icon name={playing?'pause':'play'} size={12}/>{playing?'Pause':'Play'}</button></>}<button className="reset-btn" onClick={reset} title="Reset topic and inputs" aria-label="Reset topic">Reset</button></div></div>
    {lesson.scenarios?.length?<div className="scenarios" aria-label="Choose scenario">{[baseNames[lesson.slug]||'Walkthrough',...lesson.scenarios.map(v=>v.label)].map((label,i)=><button aria-pressed={i===variant} onClick={()=>go(0,i)} key={i}>{label}</button>)}</div>:null}
@@ -47,7 +54,7 @@ export default function TopicPlayer({lesson,unit,step,scenario}:{lesson:Lesson;u
  </article>
  <aside className="guide-rail"><section className="guide"><div className="subhead"><b>STEP {index+1} / {steps.length}</b><span className="guide-badge">{current.mode==='experiment'?'EXPERIMENT':current.mode==='timeline'?'EVOLUTION':'WALKTHROUGH'}</span></div>
   <div aria-live="polite" aria-atomic="true"><div key={variant+'-'+index} className="guide-copy text-reveal"><h2>{s.title}</h2><p>{s.body}</p><div className="key-idea"><Icon name="idea" size={18}/><div><b>KEY IDEA</b><p>{s.idea}</p></div></div></div></div>
-  <div className="guide-nav"><div><button className="button" disabled={index===0} onClick={()=>go(index-1)}><Icon name="back" size={14}/> Back</button>{index===steps.length-1?<a className="button green next" href={unitHref}>Unit topics <Icon name="arrow" size={14}/></a>:<button className="button green next" onClick={()=>go(index+1)}>Next: {steps[index+1].label}<Icon name="arrow" size={14}/></button>}</div><small><kbd>←</kbd> <kbd>→</kbd> step{hasTraffic&&!reduced&&<> · <kbd>R</kbd> replay</>}</small></div>
+  <div className="guide-nav">{stepButtons}<small><kbd>←</kbd> <kbd>→</kbd> step{hasTraffic&&!reduced&&<> · <kbd>R</kbd> replay</>}</small></div>
  </section><section className={'inspector '+(inspected?'inspector-open':'')} aria-live="polite"><div className="subhead"><b><Icon name="pointer" size={13}/> COMPONENT INSPECTOR</b>{inspected&&<button className="flat-btn" onClick={()=>setChosen(null)} aria-label="Close component details"><Icon name="close" size={14}/></button>}</div>{inspected?<><h3>{inspected.label}</h3><p>{inspected.detail}</p></>:<p>Select a {noun} in the diagram to inspect its role.</p>}</section></aside>
  {inspected&&<section className="mobile-inspection" aria-live="polite"><header><strong>{inspected.label}</strong><button className="flat-btn" aria-label="Dismiss component information" onClick={()=>setChosen(null)}><Icon name="close" size={16}/></button></header><p>{inspected.detail}</p></section>}
  </main>

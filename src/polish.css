@@ -194,6 +194,7 @@ dialog[open]::backdrop { animation: modal-shade 180ms ease-out both; }
   background: linear-gradient(110deg,var(--lavender),color-mix(in srgb,var(--lavender) 64%,var(--surface)));
 }
 .guide-badge { border-color: var(--line); }
+.mobile-step-nav { display: none; }
 .step-track { position: relative; }
 .step-track button::before { display: none; }
 .step-rail {
@@ -226,6 +227,11 @@ dialog[open]::backdrop { animation: modal-shade 180ms ease-out both; }
   .catalog-row.unit-row { min-height: 64px; }
 }
 @media (max-width:740px) {
+  .guide-nav { display: none; }
+  .mobile-step-nav { display: block; padding: 0 3px 12px; }
+  .step-buttons { display: flex; align-items: stretch; gap: 8px; }
+  .step-buttons .button { min-height: 44px; }
+  .step-buttons .next { flex: 1; font-size: 11px; }
   .intro { min-height: 212px; }
   .unit-intro { min-height: 170px; }
   .row-illustration { width: 57px; height: 36px; margin-inline-end: 0; }
