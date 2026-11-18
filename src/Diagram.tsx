@@ -27,7 +27,7 @@ function FlowLine({path,index,motion,total=1,playing}:{path:string;index:number;
    <path d={path} stroke={color} strokeWidth="5.5" opacity=".19" strokeLinecap="round"/>
    <path d={path} stroke={color} strokeWidth="2.1" markerEnd={'url(#arrow'+index%4+')'}/>
    {motion&&<>
-     <path className="edge-reveal" d={path} pathLength="100" stroke={color} strokeWidth="3.3" style={{animationPlayState:playing?'running':'paused'}}/>
+     <path className="edge-reveal" d={path} pathLength="100" stroke={color} strokeWidth="3.3" style={{animationPlayState:playing?'running':'paused',animationDelay:(start*duration)+'s'}}/>
      <g opacity="0">
        <circle r="9" fill={color} opacity=".24"/>
        <circle r="5.2" fill={color} stroke="#fdf6e8" strokeWidth="1.35"/>
@@ -56,24 +56,34 @@ export default function Diagram({lesson,steps,index,playing,motion,revision,chos
    if(mode==='timeline')return {...n,x:small?66:62+i*(w-124)/Math.max(1,nodes.length-1),y:small?42+i*66:154}
    if(mode==='layers')return {...n,x:w/2,y:35+i*44}
    if(small){
-     const moving=(lesson.slug==='wlan'&&n.id==='sta'&&index>=4)||(lesson.slug==='mobile-ip'&&n.id==='ms'&&index>0)
-     return {...n,x:(nodes.length%2===1&&i===nodes.length-1?w/2:(i%2?257:99))+(moving?23:0),y:50+Math.floor(i/2)*100}
+     const relocated=step.positions?.[n.id]
+     const mobileIP=lesson.slug==='mobile-ip'&&n.id==='ms'&&index>0
+     const dx=relocated?Math.min(24,Math.max(-24,(relocated[0]-n.x)*.27)):(mobileIP?23:0)
+     const dy=relocated?Math.min(21,Math.max(-21,(relocated[1]-n.y)*.26)):0
+     return {...n,x:(nodes.length%2===1&&i===nodes.length-1?w/2:(i%2?257:99))+dx,y:50+Math.floor(i/2)*100+dy}
    }
+   const relocated=step.positions?.[n.id]
+   if(relocated)return {...n,x:relocated[0],y:relocated[1]}
    if(lesson.slug==='mobile-ip'&&n.id==='ms')return {...n,x:index===0?448:563,y:index===0?79:201}
    if(lesson.slug==='wlan'&&n.id==='sta')return {...n,x:91,y:index<4?100:222}
    return n
  })
  const byId=new Map(positions.map(n=>[n.id,n]))
- const routes=new Map<string,[string,string]>()
- steps.forEach(s=>s.links?.forEach(([a,b])=>{if(a!==b)routes.set([a,b].sort().join(':'),[a,b])}))
+ const routes=new Map<string,[string,string,string]>()
+ const remember=([from,to,label]:[string,string,string])=>{
+   if(from!==to)routes.set([from,to].sort().join(':'),[from,to,label])
+ }
+ if(lesson.visual?.connections)lesson.visual.connections.forEach(remember)
+ else steps.forEach(s=>s.links?.forEach(remember))
  const pick=(n:DiagramNode)=>{if(mode==='timeline'){const j=steps.findIndex(s=>s.active.includes(n.id));if(j>=0)onStep(j)}onNode(n.id)}
  const touch=(n:DiagramNode,children:React.ReactNode)=><Touchable key={n.id} n={n} onNode={()=>pick(n)} selected={chosen===n.id}>{children}</Touchable>
  const active=(n:DiagramNode)=>step.active.includes(n.id)||chosen===n.id
  const isMap=!['timeline','ladder','layers'].includes(mode)
  const graph=<>
+ {!small&&lesson.visual?.regions?.map(({name,x,y,width,height})=><g key={name}><rect x={x} y={y} width={width} height={height} rx="13" className="diagram-region"/><text x={x+10} y={y+16} className="region-title">{name}</text></g>)}
  {mode==='compare'&&!small&&lesson.slug==='bluetooth-wimax'&&<><rect x="13" y="36" width="312" height="230" rx="16" className="zone"/><rect x="348" y="36" width="320" height="230" rx="16" className="zone"/></>}
- {lesson.slug==='wlan'&&!small&&positions.filter(n=>n.id==='a'||n.id==='b').map(n=><ellipse key={n.id} cx={n.x} cy={n.y} rx="118" ry="65" className="coverage"/>)}
- {[...routes.values()].map(([a,b])=>byId.has(a)&&byId.has(b)?<path key={a+b} d={trimmedPath(byId.get(a)!,byId.get(b)!)} className="wire"/>:null)}
+ {(lesson.slug==='wlan'||lesson.slug==='wlan-mobility')&&!small&&positions.filter(n=>n.id==='a'||n.id==='b').map(n=><g key={n.id}><ellipse cx={n.x} cy={n.y} rx="118" ry="65" className="coverage"/><text x={n.x-107} y={n.y-29} className="region-title">BSS {n.id.toUpperCase()}</text></g>)}
+ {[...routes.values()].map(([a,b,label])=>byId.has(a)&&byId.has(b)?<path key={a+b} d={trimmedPath(byId.get(a)!,byId.get(b)!)} className="wire"><title>{label}</title></path>:null)}
  <g key={index+'-'+revision}>{links.map(([a,b,msg],i)=>byId.has(a)&&byId.has(b)&&a!==b?<g key={i}><title>{msg}</title><FlowLine path={trimmedPath(byId.get(a)!,byId.get(b)!,links.some(([c,d])=>a===d&&b===c)?6:0)} index={i} total={links.length} motion={motion} playing={playing}/></g>:null)}</g>
  {positions.map((n,i)=>touch(n,<><ellipse cy="23" rx="33" ry="9" className="equipment-shadow"/><ellipse cy="19" rx="31" ry="9" className={active(n)?'platform active':'platform'}/><g className={active(n)?'equipment active':'equipment'}><Equipment kind={n.kind} accent={accents[i%7]}/></g><BoxLabel label={n.label} y={36} active={active(n)} max={small?17:20}/></>))}
  </>

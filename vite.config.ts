@@ -1,12 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import one from './src/content/unit1'
-import two from './src/content/unit2'
-import three from './src/content/unit3'
-import four from './src/content/unit4'
-import five from './src/content/unit5'
-import { architectureViews } from './src/content/architecture'
-import type { Lesson } from './src/types'
+import {unitsContent as contents} from './src/content/curriculum'
 
 const descriptions = [
   ['i','I','Mobile Computing and Quantum Optimization','Mobile computing','#dfa95e','Architecture, mobile generations, security and quantum systems.'],
@@ -15,17 +9,28 @@ const descriptions = [
   ['iv','IV','Client Programming and OS','Client programming','#db9b73','Mobile operating systems, device hardware and programming frameworks.'],
   ['v','V','Applications','Applications','#83aac4','Voice signaling, multimedia sessions and next-generation networks.']
 ]
-const contents:Lesson[][] = [one,two,three,four,five]
-const lessons = contents.flat().map(lesson => {
-  const extra = architectureViews[lesson.slug]
-  return extra ? {...lesson, scenarios: [...(lesson.scenarios || []), extra]} : lesson
-})
+const lessons = contents.flat()
+const seen = new Set<string>()
+for(const lesson of lessons){
+  if(seen.has(lesson.slug))throw new Error('Duplicate lesson '+lesson.slug)
+  seen.add(lesson.slug)
+  if(!lesson.study?.sections.length||!lesson.steps.length)throw new Error('Incomplete lesson '+lesson.slug)
+  for(const view of [lesson,...lesson.scenarios??[]]){
+    const ids=new Set((view.nodes||lesson.nodes).map(n=>n.id))
+    for(const step of view.steps){
+      const used=[...step.active,...(step.links||[]).flatMap(([from,to])=>[from,to]),...Object.keys(step.positions||{})]
+      if(used.some(id=>!ids.has(id)))throw new Error('Unknown diagram node in '+lesson.slug+' / '+step.label)
+    }
+  }
+}
 function curriculum():Plugin {
   return {name:'mobile-curriculum',
     resolveId(id) { if(id==='virtual:syllabus'||id.startsWith('virtual:topic/')) return '\0'+id },
     load(id) {
       if(id==='\0virtual:syllabus'){
-        const units=descriptions.map(([id,numeral,title,short,color,summary],i)=>({id,numeral,title,short,color,summary,topics:contents[i].map(({slug,title,short,question,mode})=>({slug,title,short,question,mode}))}))
+        const units=descriptions.map(([id,numeral,title,short,color,summary],i)=>({id,numeral,title,short,color,summary,topics:contents[i].map(({slug,title,short,question,mode,study,scenarios,nodes})=>({
+          slug,title,short,question,mode,keywords:[...study?.sections.map(s=>s.title)??[],...scenarios?.map(s=>s.label)??[],...nodes.map(n=>n.label)]
+        }))}))
         const loaders=lessons.map(l=>JSON.stringify(l.slug)+':()=>import('+JSON.stringify('virtual:topic/'+l.slug)+')')
         return 'export const units='+JSON.stringify(units)+';export const loaders={'+loaders.join(',')+'}'
       }

@@ -6,7 +6,7 @@ const paths:Record<string,React.ReactNode>={
   search:<><circle cx="10" cy="10" r="6.3"/><path d="m15 15 5 5"/></>,
   moon:<path d="M20 15a8.8 8.8 0 0 1-11-11A9 9 0 1 0 20 15z"/>,
   sun:<><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2m0-14-2 2M7 17l-2 2"/></>,
-  arrow:<path d="M4 12h15m-6-6 6 6-6 6"/>, back:<path d="M20 12H5m6-6-6 6 6 6"/>,
+  arrow:<path d="M4 12h15m-6-6 6 6-6 6"/>, back:<path d="M20 12H5m6-6-6 6 6 6"/>, check:<path d="m5 12 4 4L19 6"/>,
   down:<path d="m6 9 6 6 6-6"/>, right:<path d="m9 6 6 6-6 6"/>, menu:<path d="M3 6h18M3 12h18M3 18h18"/>,
   file:<><path d="M6 3h8l4 4v14H6zM14 3v5h4"/><path d="M9 13h6m-6 3h4"/></>,
   layers:<><path d="m2 8 10-5 10 5-10 5zM3 12l9 5 9-5M3 16l9 5 9-5"/></>,
