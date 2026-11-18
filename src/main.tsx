@@ -1,4 +1,4 @@
-import { lazy, startTransition, Suspense, use, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { lazy, startTransition, Suspense, use, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { createRoot } from 'react-dom/client'
 import { units, loaders } from 'virtual:syllabus'
 import { Brand, Folder, Icon } from './Icons'
@@ -92,20 +92,14 @@ function App(){
       {invalid?<main id="main" className="index-page"><h1>Topic unavailable</h1><a href="#/">Return to course overview</a></main>:entry&&unit?<Suspense fallback={<main id="main" className="loading">Opening {entry.short}…</main>}><Reader entry={entry} unit={unit} step={Number(num)||1} scenario={Number(new URLSearchParams(query).get('view'))||0}/></Suspense>:<IndexPage key={unit?.id||'overview'} unit={unit}/>}
     </div>{search&&<Search dismiss={()=>setSearch(false)}/ >}{drawer&&<Drawer unit={unit} entry={entry} dismiss={()=>setDrawer(false)}/>}</>
 }
-const phoneViewport = matchMedia('(max-width: 740px)')
-function subscribeToViewport(listener:()=>void){
-  phoneViewport.addEventListener('change',listener)
-  return ()=>phoneViewport.removeEventListener('change',listener)
-}
 function Course(){
-  const onPhone = useSyncExternalStore(subscribeToViewport,()=>phoneViewport.matches)
-  return onPhone
-    ? <main className="desktop-notice">
-        <Brand/>
-        <img src="./assets/hero.webp" width="1050" height="514" alt=""/>
-        <h1>Best viewed on a desktop</h1>
-        <p>Open Mobile Computing on a desktop or laptop to explore the interactive lessons.</p>
-      </main>
-    : <App/>
+  const [dismissed,setDismissed] = useState(false)
+  return <>
+    <App/>
+    {!dismissed&&<aside className="desktop-notice" aria-label="Viewing tip">
+      <p>Best viewed on a desktop.</p>
+      <button className="flat-btn" type="button" aria-label="Dismiss viewing tip" onClick={()=>setDismissed(true)}><Icon name="close" size={16}/></button>
+    </aside>}
+  </>
 }
 createRoot(document.getElementById('root')!).render(<Course/>)
