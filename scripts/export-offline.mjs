@@ -1,6 +1,6 @@
 import { build } from 'vite'
-import { readFile, writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
+import { extname, resolve } from 'node:path'
 
 const outputPath = resolve(process.argv[2] || 'mobile-computing.html')
 const bundle = await build({
@@ -20,12 +20,17 @@ const dataURL = async (file, type) => 'data:'+type+';base64,'+(await readFile(fi
 const font = await dataURL('public/assets/mono.woff2','font/woff2')
 const hero = await dataURL('public/assets/hero.webp','image/webp')
 const icon = await dataURL('public/favicon.svg','image/svg+xml')
-const gsm = await dataURL('public/assets/gallery/gsm.png','image/png')
-const gprs = await dataURL('public/assets/gallery/gprs.png','image/png')
 const styles = String(css.source).replace(/url\((?:["'])?[^)]*?mono\.woff2(?:["'])?\)/g, 'url("'+font+'")')
-const script = js.code.replaceAll('./assets/hero.webp',hero).replaceAll('./favicon.svg',icon)
-  .replaceAll('./assets/gallery/gsm.png',gsm).replaceAll('./assets/gallery/gprs.png',gprs)
-  .replace(/<\/script/gi,'<\\/script')
+let script = js.code.replaceAll('./assets/hero.webp',hero).replaceAll('./favicon.svg',icon)
+const imageTypes = {'.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp'}
+for (const file of await readdir('public/assets/gallery')) {
+  const type = imageTypes[extname(file)]
+  if (type) {
+    const path = 'assets/gallery/'+file
+    script = script.replaceAll('./'+path,await dataURL('public/'+path,type))
+  }
+}
+script = script.replace(/<\/script/gi,'<\\/script')
 const license = (await readFile('public/assets/font-license.txt','utf8')).replaceAll('--','—')
 const html = (await readFile('index.html','utf8'))
   .replace('./favicon.svg',icon)

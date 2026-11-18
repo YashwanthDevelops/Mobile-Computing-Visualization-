@@ -49,7 +49,7 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
  <article className="workspace">
   <div className="lesson-head"><div className="crumb"><a className="page-back" href={unitHref} title={unit.title}><Icon name="back" size={14}/> Back to unit</a><span>Unit {unit.numeral} · Topic {unit.topics.findIndex(t=>t.slug===lesson.slug)+1} of {unit.topics.length}</span></div>
    <h1>{lesson.title}</h1><p>{lesson.question}</p><div className="pills"><span className="pill tan"><Icon name="route" size={12}/>{modeNames[current.mode]}</span><span className="pill lavender"><Icon name="list" size={12}/>{steps.length} steps</span>{lesson.study&&<button className="pill study-jump" onClick={()=>document.getElementById('study-notes')?.scrollIntoView({behavior:reduced?'instant':'smooth'})}><Icon name="book" size={12}/> Study notes</button>}
-    <button className="pill gallery-open" type="button" aria-haspopup="dialog" onClick={()=>setGalleryOpen(true)}><Icon name="grid" size={12}/> Gallery</button>
+    <button className="button gallery-open" type="button" aria-haspopup="dialog" onClick={()=>setGalleryOpen(true)}><Icon name="grid" size={15}/> Gallery <span>Exam diagrams</span><Icon name="arrow" size={13}/></button>
    </div>
   </div>
   <nav className="mobile-step-nav" aria-label="Lesson steps">{stepButtons}</nav>
@@ -83,6 +83,6 @@ export default function TopicPlayer({lesson,unit,step,scenario,onStepRoute}:{les
  </section><section className={'inspector '+(inspected?'inspector-open':'')} aria-live="polite"><div className="subhead"><b><Icon name="pointer" size={13}/> COMPONENT INSPECTOR</b>{inspected&&<button className="flat-btn" onClick={()=>setChosen(null)} aria-label="Close component details"><Icon name="close" size={14}/></button>}</div>{inspected?<><h3>{inspected.label}</h3><p>{inspected.detail}</p></>:<p>Select a {noun} in the diagram to inspect its role.</p>}</section></aside>
  {inspected&&<section className="mobile-inspection" aria-live="polite"><header><strong>{inspected.label}</strong><button className="flat-btn" aria-label="Dismiss component information" onClick={()=>setChosen(null)}><Icon name="close" size={16}/></button></header><p>{inspected.detail}</p></section>}
  {lesson.study&&<StudyNotes key={lesson.slug} notes={lesson.study}/>}
- {galleryOpen&&<Gallery lesson={lesson} variant={variant} index={index} baseLabel={baseLabel} close={()=>setGalleryOpen(false)}/>}
+ {galleryOpen&&<Gallery slug={lesson.slug} title={lesson.title} close={()=>setGalleryOpen(false)}/>}
  </main>
 }

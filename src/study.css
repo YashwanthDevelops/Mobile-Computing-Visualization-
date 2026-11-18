@@ -86,12 +86,17 @@
 .region-title { fill: var(--soft); font-size: 9px; font-weight: 650; letter-spacing: .07em; }
 
 .gallery-open {
-  color: var(--ink);
-  background: var(--surface);
-  cursor: pointer;
-  transition: background var(--quick),border-color var(--quick);
+  gap: 7px;
+  margin-inline-start: auto;
+  padding: 7px 10px;
+  color: #fbf5ff;
+  background: #514364;
+  border-color: #30283a;
+  box-shadow: 2px 2px 0 #30283a;
+  font-weight: 700;
 }
-.gallery-open:hover { background: var(--selected); border-color: var(--edge); }
+.gallery-open:hover { background: #66547b; }
+.gallery-open span { border-inline-start: 1px solid #bcaacf; padding-inline-start: 7px; color: #eadcf4; font-weight: 500; }
 .gallery-dialog {
   width: min(820px,calc(100vw - 24px));
   max-height: min(calc(100dvh - 36px), 840px);
@@ -107,6 +112,7 @@
 .gallery-dialog[open] { display: flex; flex-direction: column; }
 .gallery-dialog::backdrop { background: #1e251c80; }
 .gallery-heading { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-bottom: 1px solid var(--line); }
+.gallery-heading-icon { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 8px; background: #514364; color: #fbf5ff; }
 .gallery-heading > div { flex: 1; }
 .gallery-heading h2 { margin: 0; font-size: 16px; }
 .gallery-heading p { margin: 3px 0 0; color: var(--soft); font-size: 11px; }
@@ -125,33 +131,21 @@
 .gallery-tabs button[aria-pressed=true] { background: var(--mint); border-color: var(--edge); }
 .gallery-item { margin: 0; }
 .gallery-image { display: grid; place-items: center; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
-.gallery-image img { display: block; width: 100%; height: auto; max-height: 40dvh; object-fit: contain; }
+.gallery-image img { display: block; width: 100%; height: auto; max-height: 48dvh; object-fit: contain; }
 .gallery-caption { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 12px; }
 .gallery-caption h3 { margin: 0; font-size: 14px; }
-.gallery-item p { color: var(--soft); font-size: 11px; line-height: 1.7; }
-.gallery-links { display: flex; gap: 8px 14px; flex-wrap: wrap; font-size: 10px; }
-.gallery-links a { text-decoration-thickness: 1px; text-underline-offset: 3px; color: var(--ink); }
-.gallery-pickers { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 11px; }
-.gallery-pickers label { display: grid; gap: 4px; color: var(--soft); font-size: 10px; max-width: 100%; }
-.gallery-pickers select {
-  min-height: 34px;
-  max-width: 100%;
-  padding: 4px 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  color: var(--ink);
-  background: var(--surface2);
-  font: inherit;
-  font-size: 11px;
-}
-.gallery-diagram { background: var(--surface2); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.gallery-diagram .diagram-area { min-height: 0; }
-.gallery-diagram .diagram-svg { width: 100%; height: auto; max-height: 430px; }
-.gallery-message-order { display: grid; gap: 5px; margin-bottom: 0; padding-inline-start: 20px; font-size: 10px; }
-.gallery-message-order span { color: var(--soft); }
+.gallery-draw { margin: 11px 0 15px; padding: 10px 12px; border: 1px solid var(--line); border-inline-start: 3px solid #74628a; border-radius: 7px; background: var(--surface2); }
+.gallery-draw h4 { margin: 0 0 3px; color: var(--ink); font-size: 11px; }
+.gallery-draw p { margin: 0; color: var(--soft); font-size: 11px; line-height: 1.7; }
+.gallery-actions { display: flex; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+.gallery-figure-action { color: #fbf5ff; background: #514364; border-color: #30283a; box-shadow: 2px 2px 0 #30283a; }
+.gallery-figure-action:hover { background: #66547b; }
+.gallery-source,.gallery-credit { color: var(--soft); font-size: 10px; }
+.gallery-source:hover,.gallery-credit a:hover { text-decoration: underline; }
+.gallery-credit { margin: 10px 0 0; }
 
 @media (max-width:740px) {
   .study-notes { width: 100%; }
   .study-section p,.study-recall li { font-size: 12px; }
-  .gallery-diagram .diagram-svg { max-height: none; }
+  .gallery-open { margin-inline-start: 0; }
 }

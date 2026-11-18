@@ -1,120 +1,39 @@
 import {useEffect,useRef,useState} from 'react'
 import {Icon} from './Icons'
-import Diagram from './Diagram'
-import type {Lesson} from './types'
+import {examFigures} from './content/exam-figures'
 
-type Reference = {
-  title:string
-  description:string
-  source:string
-  author:string
-  license:string
-  licenseURL:string
-  image?:{src:string;width:number;height:number}
-}
-const references:Record<string,Reference> = {
-  'gsm-architecture': {
-    title:'GSM network structure',
-    description:'Follow the radio link through the BTS and BSC to the serving MSC. Locate the subscriber and equipment registers and the external telephone network.',
-    image:{src:'./assets/gallery/gsm.png',width:710,height:702},
-    author:'Greno',
-    license:'Public domain',
-    licenseURL:'https://creativecommons.org/publicdomain/mark/1.0/',
-    source:'https://commons.wikimedia.org/wiki/File:Gsm_network_architecture.png'
-  },
-  'gprs-architecture': {
-    title:'GPRS core network',
-    description:'Read from either radio network toward the service networks. Trace the Gb or IuPS access interface, Gn between core nodes, Gi to external networks, and Gr to the subscriber database.',
-    image:{src:'./assets/gallery/gprs.png',width:599,height:416},
-    author:'Mozzerati',
-    license:'CC BY-SA 3.0',
-    licenseURL:'https://creativecommons.org/licenses/by-sa/3.0/',
-    source:'https://commons.wikimedia.org/wiki/File:GPRS_core_structure.png'
-  },
-  wlan:{
-    title:'802.11 network architecture',
-    description:'Locate the APs, basic service sets and distribution system in one drawing.',
-    author:'Superspritz',
-    license:'CC BY-SA 4.0',
-    licenseURL:'https://creativecommons.org/licenses/by-sa/4.0/',
-    source:'https://commons.wikimedia.org/wiki/File:802.11_Network_Architecture.svg'
-  },
-  sip:{
-    title:'SIP session setup sequence',
-    description:'Follow the message order through two SIP proxies, from the invitation to the end of the call.',
-    author:'Amakuha',
-    license:'CC BY-SA 4.0',
-    licenseURL:'https://creativecommons.org/licenses/by-sa/4.0/',
-    source:'https://commons.wikimedia.org/wiki/File:SIP_session_setup_example.svg'
-  }
-}
-
-function ReferenceDiagram({reference}:{reference:Reference}){
-  return <figure className="gallery-item text-reveal">
-    {reference.image&&<a className="gallery-image" href={reference.source} target="_blank" rel="noreferrer" aria-label={'Open '+reference.title+' at its source'}>
-      <img src={reference.image.src} width={reference.image.width} height={reference.image.height} alt={reference.title}/>
-    </a>}
-    <figcaption>
-      <div className="gallery-caption"><h3>{reference.title}</h3></div>
-      <p>{reference.description}</p>
-      <div className="gallery-links">
-        <a href={reference.source} target="_blank" rel="noreferrer">View on Wikimedia Commons <Icon name="arrow" size={12}/></a>
-        <span>{reference.author} · <a href={reference.licenseURL} target="_blank" rel="noreferrer">{reference.license}</a></span>
-      </div>
-    </figcaption>
-  </figure>
-}
-
-export default function Gallery({lesson,variant,index,baseLabel,close}:{lesson:Lesson;variant:number;index:number;baseLabel:string;close:()=>void}){
-  const dialog=useRef<HTMLDialogElement>(null)
-  const [walkthrough,setWalkthrough]=useState(variant)
-  const [frame,setFrame]=useState(index)
-  const [showReference,setShowReference]=useState(false)
-  const scenario=lesson.scenarios?.[walkthrough-1]
-  const steps=scenario?.steps??lesson.steps
-  const diagram={...lesson,nodes:scenario?.nodes??lesson.nodes,mode:scenario?.mode??lesson.mode,
-    visual:scenario?.visual??(scenario?.nodes?undefined:lesson.visual)}
-  const active=steps[frame]
-  const reference=references[lesson.slug]
-  const label=(id:string)=>diagram.nodes.find(node=>node.id===id)?.label??id
-  useEffect(()=>{dialog.current?.showModal()},[])
-  return <dialog className="gallery-dialog" aria-labelledby="gallery-title" ref={dialog} onClose={close} onClick={e=>{if(e.currentTarget===e.target)dialog.current?.close()}}>
-    <header className="gallery-heading">
-      <Icon name="grid" size={18}/>
-      <div><h2 id="gallery-title">Gallery</h2><p>{lesson.title}</p></div>
-      <button type="button" autoFocus className="flat-btn" aria-label="Close gallery" onClick={()=>dialog.current?.close()}><Icon name="close"/></button>
-    </header>
-    <div className="gallery-body">
-      {reference&&<div className="gallery-tabs" aria-label="Diagram type">
-        <button type="button" aria-pressed={!showReference} onClick={()=>setShowReference(false)}>Lesson diagram</button>
-        <button type="button" aria-pressed={showReference} onClick={()=>setShowReference(true)}>Reference diagram</button>
-      </div>}
-      {showReference&&reference?<ReferenceDiagram reference={reference}/>:<>
-        <div className="gallery-pickers">
-          {!!lesson.scenarios?.length&&<label>Walkthrough
-            <select value={walkthrough} onChange={e=>{setWalkthrough(Number(e.target.value));setFrame(0)}}>
-              {[baseLabel,...lesson.scenarios.map(item=>item.label)].map((item,i)=><option key={i} value={i}>{item}</option>)}
-            </select>
-          </label>}
-          <label>Step
-            <select value={frame} onChange={e=>setFrame(Number(e.target.value))}>
-              {steps.map((item,i)=><option key={i} value={i}>{i+1}. {item.label}</option>)}
-            </select>
-          </label>
-        </div>
-        <figure className="gallery-item">
-          <div className="gallery-diagram" key={walkthrough+'-'+frame}>
-            <Diagram lesson={diagram} steps={steps} index={frame} playing={false} motion={false} revision={0}/>
-          </div>
-          <figcaption className="text-reveal" key={walkthrough+'-'+frame}>
-            <div className="gallery-caption"><h3>{active.title}</h3></div>
-            <p>{active.body}</p>
-            {!!active.links?.length&&<ol className="gallery-message-order" aria-label="Diagram message order">
-              {active.links.map(([from,to,message],i)=><li key={i}><strong>{message}</strong> <span>{label(from)} → {label(to)}</span></li>)}
-            </ol>}
-          </figcaption>
-        </figure>
-      </>}
-    </div>
-  </dialog>
+type GalleryProps={slug:string;title:string;close:()=>void}
+export default function Gallery({slug,title,close}:GalleryProps){
+ const dialog=useRef<HTMLDialogElement>(null)
+ const [index,setIndex]=useState(0)
+ const figures=examFigures[slug]
+ const figure=figures[index]
+ const fullSize=figure.preview?.startsWith('./')?figure.preview:figure.image??figure.source
+ useEffect(()=>{dialog.current?.showModal()},[])
+ return <dialog className="gallery-dialog" aria-labelledby="gallery-title" ref={dialog} onClose={close} onClick={e=>{if(e.currentTarget===e.target)dialog.current?.close()}}>
+   <header className="gallery-heading">
+     <span className="gallery-heading-icon"><Icon name="grid" size={19}/></span>
+     <div><h2 id="gallery-title">Exam diagram gallery</h2><p>{title}</p></div>
+     <button type="button" autoFocus className="flat-btn" aria-label="Close gallery" onClick={()=>dialog.current?.close()}><Icon name="close"/></button>
+   </header>
+   <div className="gallery-body">
+     {figures.length>1&&<div className="gallery-tabs" aria-label="Choose a reference figure">
+       {figures.map((item,i)=><button type="button" aria-pressed={i===index} key={item.title} onClick={()=>setIndex(i)}>{item.title}</button>)}
+     </div>}
+     <figure key={figure.title} className="gallery-item text-reveal">
+       {figure.preview&&<a className="gallery-image" href={fullSize} target="_blank" rel="noreferrer" aria-label={'Open full-size diagram: '+figure.title}>
+         <img src={figure.preview} alt={figure.title}/>
+       </a>}
+       <figcaption>
+         <div className="gallery-caption"><h3>{figure.title}</h3></div>
+         <div className="gallery-draw"><h4>What to draw</h4><p>{figure.draw}</p></div>
+         <div className="gallery-actions">
+           <a className="button gallery-figure-action" href={fullSize} target="_blank" rel="noreferrer">Open diagram <Icon name="arrow" size={15}/></a>
+           <a className="gallery-source" href={figure.source} target="_blank" rel="noreferrer">Source · {figure.publisher}</a>
+         </div>
+         {figure.credit&&<p className="gallery-credit">{figure.credit}{figure.license&&<> · <a href={figure.license.url} target="_blank" rel="noreferrer">{figure.license.name}</a></>}</p>}
+       </figcaption>
+     </figure>
+   </div>
+ </dialog>
 }

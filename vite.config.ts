@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import {unitsContent as contents} from './src/content/curriculum'
+import {examFigures} from './src/content/exam-figures'
 
 const descriptions = [
   ['i','I','Mobile Computing and Quantum Optimization','Mobile computing','#dfa95e','Architecture, mobile generations, security and quantum systems.'],
@@ -15,6 +16,7 @@ for(const lesson of lessons){
   if(seen.has(lesson.slug))throw new Error('Duplicate lesson '+lesson.slug)
   seen.add(lesson.slug)
   if(!lesson.study?.sections.length||!lesson.steps.length)throw new Error('Incomplete lesson '+lesson.slug)
+  if(!examFigures[lesson.slug]?.length)throw new Error('Missing exam diagram reference for '+lesson.slug)
   for(const view of [lesson,...lesson.scenarios??[]]){
     const ids=new Set((view.nodes||lesson.nodes).map(n=>n.id))
     for(const step of view.steps){
