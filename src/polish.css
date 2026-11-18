@@ -157,7 +157,16 @@ dialog[open]::backdrop { animation: modal-shade 180ms ease-out both; }
 }
 
 .lesson-head h1 { font-size: clamp(21px,2.1vw,32px); line-height: 1.16; }
-.lesson-head .crumb a { box-shadow: inset 0 -2px 0 color-mix(in srgb,var(--unit-color) 66%,transparent); }
+.crumb .page-back {
+  min-height: 30px;
+  padding: 4px 8px;
+  background: var(--surface2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  transition: background-color var(--quick), border-color var(--quick);
+}
+.crumb .page-back:hover { background: var(--selected); border-color: var(--edge); text-decoration: none; }
 .stage {
   background: radial-gradient(ellipse at 51% 50%,var(--canvas-center),transparent 73%),var(--surface2);
   border-radius: 10px;
@@ -227,6 +236,7 @@ dialog[open]::backdrop { animation: modal-shade 180ms ease-out both; }
   .catalog-row.unit-row { min-height: 64px; }
 }
 @media (max-width:740px) {
+  .crumb .page-back { min-height: 40px; }
   .guide-nav { display: none; }
   .mobile-step-nav { display: block; padding: 0 3px 12px; }
   .step-buttons { display: flex; align-items: stretch; gap: 8px; }

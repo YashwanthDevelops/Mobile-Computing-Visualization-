@@ -52,7 +52,11 @@ function Drawer({unit,entry,dismiss}:{unit?:Unit;entry?:Entry;dismiss:()=>void})
 function IndexPage({unit}:{unit?:Unit}){
   return <main className="index-page page-enter" id="main" style={unit?{'--unit-color':unit.color} as CSSProperties:undefined}>
     <section className={'intro '+(unit?'unit-intro':'home-intro')}>
-      <div className="intro-copy"><div className="crumb"><a href="#/"><Icon name="book" size={14}/> Course</a><span>/</span>{unit?'Unit '+unit.numeral:'Overview'}</div>
+      <div className="intro-copy"><div className="crumb">
+        {unit
+          ? <><a className="page-back" href="#/"><Icon name="back" size={14}/> Back to course</a><span>Unit {unit.numeral}</span></>
+          : <><a href="#/"><Icon name="book" size={14}/> Course</a><span>/</span>Overview</>}
+      </div>
         <h1>{unit?unit.title:'Mobile Computing'}</h1>
         <p>{unit?unit.summary:'Follow signals, packets and calls through a mobile network, one step at a time.'}</p>
         <div className="pills">{!unit&&<span className="pill tan"><Icon name="layers" size={13}/> 5 units</span>}<span className="pill mint"><Icon name="file" size={13}/> {unit?unit.topics.length:total} topics</span></div>

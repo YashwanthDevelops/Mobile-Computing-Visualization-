@@ -39,7 +39,7 @@ export default function TopicPlayer({lesson,unit,step,scenario}:{lesson:Lesson;u
  </div>
  return <main className="lesson-page page-enter" id="main" style={{'--unit-color':unit.color} as CSSProperties}>
  <article className="workspace">
-  <div className="lesson-head"><div className="crumb"><a href={unitHref}>Unit {unit.numeral} · {unit.short}</a><span>/</span>Topic {unit.topics.findIndex(t=>t.slug===lesson.slug)+1} of {unit.topics.length}</div>
+  <div className="lesson-head"><div className="crumb"><a className="page-back" href={unitHref} title={unit.title}><Icon name="back" size={14}/> Back to unit</a><span>Unit {unit.numeral} · Topic {unit.topics.findIndex(t=>t.slug===lesson.slug)+1} of {unit.topics.length}</span></div>
    <h1>{lesson.title}</h1><p>{lesson.question}</p><div className="pills"><span className="pill tan"><Icon name="route" size={12}/>{modeNames[current.mode]}</span><span className="pill lavender"><Icon name="list" size={12}/>{steps.length} steps</span></div>
   </div>
   <nav className="mobile-step-nav" aria-label="Lesson steps">{stepButtons}</nav>
