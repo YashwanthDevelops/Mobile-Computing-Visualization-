@@ -268,3 +268,29 @@ dialog[open]::backdrop { animation: modal-shade 180ms ease-out both; }
 [data-motion=reduced] .tree-children { transition: opacity 120ms ease; }
 [data-motion=reduced] :is(.tree-parent button svg,.signal-replay:hover svg,.button,.playback button,.learn-tab) { transform: none; }
 [data-motion=reduced] .step-rail span { transition: none; }
+
+.desktop-notice {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  min-height: 100dvh;
+  padding: 28px 22px;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 41%,var(--atlas-end),transparent 65%),var(--bg);
+}
+.desktop-notice img {
+  display: block;
+  width: min(90%,330px);
+  height: auto;
+  margin: 37px 0 22px;
+}
+.desktop-notice h1 {
+  font-size: clamp(22px,6.2vw,32px);
+  line-height: 1.18;
+  letter-spacing: -.055em;
+}
+.desktop-notice p {
+  color: var(--soft);
+  max-width: 35ch;
+  margin-top: 12px;
+}
